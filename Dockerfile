@@ -57,6 +57,9 @@ RUN apt update
 RUN apt install -y libcurl4-openssl-dev libsqlite3-dev
 
 WORKDIR /opt
+
+RUN mkdir configs
+
 RUN mkdir zcatch
 COPY --from=build /opt/zcatch/build/zcatch_srv /opt/zcatch/zcatch_srv
 COPY --from=build /opt/zcatch/build/data /opt/zcatch/data
@@ -75,12 +78,11 @@ ADD configs/ctf.cfg /opt/teeworlds/ctf.cfg
 RUN mkdir ddnet
 COPY --from=build /opt/ddnet/build/DDNet-Server /opt/ddnet/ddnet_srv
 COPY --from=build /opt/ddnet/build/data /opt/ddnet/data
-ADD configs/ddnet.cfg /opt/ddnet/data/ddnet.cfg
+ADD configs/ddnet.cfg /opt/ddnet/ddnet.cfg
 ADD maps/ddnet/* /opt/ddnet/data/maps7/
 ADD maps/ddnet/* /opt/ddnet/data/maps/
 
-#ENTRYPOINT ["./zcatch/zcatch_srv", "-f", "./zcatch/zcatch.cfg"]
-#ENTRYPOINT ["./fng2/fng2_srv", "-f", "./fng2/fng2.cfg"]
-#ENTRYPOINT ["./teeworlds/teeworlds_srv", "-f", "./teeworlds/ctf.cfg"]
-ENTRYPOINT ["./ddnet/ddnet_srv", "-f", "./ddnet/data/ddnet.cfg"]
-#ENTRYPOINT ["top", "-b"]
+ADD entrypoint.sh /opt/entrypoint.sh
+RUN chmod +x /opt/entrypoint.sh
+
+ENTRYPOINT ["./entrypoint.sh"]
